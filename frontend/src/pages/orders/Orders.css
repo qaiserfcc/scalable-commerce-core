@@ -1,0 +1,285 @@
+.orders-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.orders-container h1 {
+  margin-bottom: 30px;
+  color: #333;
+}
+
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.order-card {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.order-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.order-header h3 {
+  margin: 0 0 5px;
+  color: #333;
+  font-size: 18px;
+}
+
+.order-date {
+  color: #666;
+  font-size: 14px;
+  margin: 0;
+}
+
+.order-status {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-confirmed {
+  background: #cfe2ff;
+  color: #084298;
+}
+
+.status-processing {
+  background: #e7f1ff;
+  color: #0c5460;
+}
+
+.status-shipped {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+.status-delivered {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-cancelled {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.order-details {
+  border-top: 1px solid #eee;
+  padding-top: 15px;
+}
+
+.order-info p {
+  margin: 5px 0;
+  color: #666;
+}
+
+.no-orders {
+  text-align: center;
+  padding: 80px 20px;
+}
+
+.no-orders p {
+  color: #666;
+  margin-bottom: 30px;
+}
+
+/* Order Detail */
+.order-detail-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.order-info-card {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+}
+
+.order-info-card h2 {
+  margin: 0 0 15px;
+  color: #333;
+}
+
+.order-info-card p {
+  margin: 8px 0;
+  color: #666;
+}
+
+.order-content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 30px;
+  margin-bottom: 30px;
+}
+
+.order-items-section,
+.order-summary-section {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.order-items-section h3,
+.order-summary-section h3 {
+  margin: 0 0 20px;
+  color: #333;
+}
+
+.order-items {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.order-item {
+  padding: 15px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+}
+
+.order-item h4 {
+  margin: 0 0 5px;
+  color: #333;
+  font-size: 16px;
+}
+
+.order-item p {
+  margin: 3px 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.order-item-details {
+  margin-top: 10px;
+}
+
+.item-total {
+  font-weight: 700;
+  color: #667eea;
+}
+
+.summary-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+  color: #666;
+}
+
+.summary-row.total {
+  font-size: 20px;
+  font-weight: 700;
+  color: #333;
+  border-bottom: none;
+  margin-top: 10px;
+}
+
+/* Tracking */
+.tracking-section {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tracking-section h3 {
+  margin: 0 0 30px;
+  color: #333;
+}
+
+.tracking-timeline {
+  position: relative;
+  padding-left: 40px;
+}
+
+.tracking-timeline::before {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  bottom: 10px;
+  width: 2px;
+  background: #ddd;
+}
+
+.tracking-item {
+  position: relative;
+  margin-bottom: 30px;
+}
+
+.tracking-dot {
+  position: absolute;
+  left: -35px;
+  top: 5px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #667eea;
+  border: 3px solid white;
+  box-shadow: 0 0 0 2px #667eea;
+}
+
+.tracking-content {
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.tracking-status {
+  font-weight: 700;
+  color: #333;
+  margin: 0 0 5px;
+}
+
+.tracking-message {
+  color: #666;
+  margin: 5px 0;
+}
+
+.tracking-time {
+  color: #999;
+  font-size: 13px;
+  margin: 5px 0 0;
+}
+
+@media (max-width: 768px) {
+  .order-content {
+    grid-template-columns: 1fr;
+  }
+
+  .tracking-timeline {
+    padding-left: 30px;
+  }
+}
