@@ -1,0 +1,38 @@
+{
+  "name": "scalable-commerce-core",
+  "version": "1.0.0",
+  "description": "A modular e-commerce platform built with Node.js (Express), MySQL, and React (TypeScript)",
+  "private": true,
+  "workspaces": [
+    "services/*",
+    "frontend"
+  ],
+  "scripts": {
+    "install-all": "npm install && npm run install-services && npm run install-frontend",
+    "install-services": "cd services/api-gateway && npm install && cd ../auth-service && npm install && cd ../product-service && npm install && cd ../cart-service && npm install && cd ../order-service && npm install && cd ../payment-service && npm install && cd ../discount-service && npm install && cd ../admin-service && npm install && cd ../notification-service && npm install",
+    "install-frontend": "cd frontend && npm install",
+    "dev:gateway": "cd services/api-gateway && npm run dev",
+    "dev:auth": "cd services/auth-service && npm run dev",
+    "dev:product": "cd services/product-service && npm run dev",
+    "dev:cart": "cd services/cart-service && npm run dev",
+    "dev:order": "cd services/order-service && npm run dev",
+    "dev:payment": "cd services/payment-service && npm run dev",
+    "dev:discount": "cd services/discount-service && npm run dev",
+    "dev:admin": "cd services/admin-service && npm run dev",
+    "dev:notification": "cd services/notification-service && npm run dev",
+    "dev:frontend": "cd frontend && npm start",
+    "start:all": "node scripts/start-all.js",
+    "build:frontend": "cd frontend && npm run build"
+  },
+  "keywords": [
+    "e-commerce",
+    "microservices",
+    "nodejs",
+    "express",
+    "mysql",
+    "react",
+    "typescript"
+  ],
+  "author": "",
+  "license": "MIT"
+}
