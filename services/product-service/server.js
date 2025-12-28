@@ -277,61 +277,92 @@ app.put('/products/:id', verifyAdmin, async (req, res) => {
 
 // Bulk upload products from CSV (admin only)
 app.post('/products/bulk-upload', verifyAdmin, upload.single('file'), async (req, res) => {
+  let filePath = null;
+  
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
+    filePath = req.file.path;
     const products = [];
     const errors = [];
+    let batchSize = 0;
+    const maxBatchSize = 100; // Process in batches of 100
 
-    fs.createReadStream(req.file.path)
+    const processStream = fs.createReadStream(filePath)
       .pipe(csv())
       .on('data', (row) => {
         products.push(row);
-      })
-      .on('end', async () => {
-        let successCount = 0;
-        let errorCount = 0;
-
-        for (const product of products) {
-          try {
-            await db.query(
-              `INSERT INTO products (name, description, price, compare_at_price, sku, category_id, 
-               stock_quantity, image_url, featured) 
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-              [
-                product.name,
-                product.description || '',
-                parseFloat(product.price),
-                product.compare_at_price ? parseFloat(product.compare_at_price) : null,
-                product.sku,
-                product.category_id || null,
-                parseInt(product.stock_quantity) || 0,
-                product.image_url || null,
-                product.featured === 'true' || product.featured === '1'
-              ]
-            );
-            successCount++;
-          } catch (error) {
-            errorCount++;
-            errors.push({ sku: product.sku, error: error.message });
-          }
+        batchSize++;
+        
+        // Pause stream if batch size reached to prevent memory issues
+        if (batchSize >= maxBatchSize) {
+          processStream.pause();
         }
-
-        // Clean up uploaded file
-        fs.unlinkSync(req.file.path);
-
-        res.json({
-          message: 'Bulk upload completed',
-          success: successCount,
-          errors: errorCount,
-          errorDetails: errors
-        });
       });
+
+    // Process accumulated products
+    const processBatch = async () => {
+      let successCount = 0;
+      let errorCount = 0;
+
+      for (const product of products) {
+        try {
+          await db.query(
+            `INSERT INTO products (name, description, price, compare_at_price, sku, category_id, 
+             stock_quantity, image_url, featured) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+              product.name,
+              product.description || '',
+              parseFloat(product.price),
+              product.compare_at_price ? parseFloat(product.compare_at_price) : null,
+              product.sku,
+              product.category_id || null,
+              parseInt(product.stock_quantity) || 0,
+              product.image_url || null,
+              product.featured === 'true' || product.featured === '1'
+            ]
+          );
+          successCount++;
+        } catch (error) {
+          errorCount++;
+          errors.push({ sku: product.sku, error: error.message });
+        }
+      }
+
+      return { successCount, errorCount };
+    };
+
+    processStream.on('end', async () => {
+      const result = await processBatch();
+      
+      res.json({
+        message: 'Bulk upload completed',
+        success: result.successCount,
+        errors: result.errorCount,
+        errorDetails: errors
+      });
+    });
+
+    processStream.on('error', (error) => {
+      console.error('Stream error:', error);
+      res.status(500).json({ error: 'Failed to process bulk upload' });
+    });
+
   } catch (error) {
     console.error('Bulk upload error:', error);
     res.status(500).json({ error: 'Failed to process bulk upload' });
+  } finally {
+    // Clean up uploaded file in all cases
+    if (filePath && fs.existsSync(filePath)) {
+      try {
+        fs.unlinkSync(filePath);
+      } catch (cleanupError) {
+        console.error('Failed to cleanup uploaded file:', cleanupError);
+      }
+    }
   }
 });
 

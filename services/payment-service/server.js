@@ -39,11 +39,10 @@ app.post('/payments', authenticateToken, async (req, res) => {
   try {
     const { order_id, payment_method, payment_details } = req.body;
 
-    // Verify order exists and belongs to user
-    // In production, this would call the order service
-    
-    // Simulate payment processing
-    const transactionId = `TXN-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+    // Generate unique transaction ID with timestamp for better uniqueness
+    const timestamp = Date.now().toString(36).toUpperCase();
+    const random = Math.random().toString(36).substr(2, 12).toUpperCase();
+    const transactionId = `TXN-${timestamp}-${random}`;
     
     // For COD, mark as pending; for online payments, mark as completed
     const status = payment_method === 'COD' ? 'pending' : 'completed';

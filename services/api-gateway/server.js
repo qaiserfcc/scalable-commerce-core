@@ -14,10 +14,11 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('combined'));
 
-// Rate limiting
+// Rate limiting - configurable via environment variables
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes default
+  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, // 100 requests default
+  message: 'Too many requests from this IP, please try again later.'
 });
 app.use(limiter);
 

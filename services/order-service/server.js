@@ -34,11 +34,12 @@ const authenticateToken = async (req, res, next) => {
   }
 };
 
-// Generate unique order number
+// Generate unique order number with timestamp-based uniqueness
 const generateOrderNumber = () => {
   const timestamp = Date.now().toString(36).toUpperCase();
-  const random = Math.random().toString(36).substr(2, 5).toUpperCase();
-  return `ORD-${timestamp}-${random}`;
+  const random = Math.random().toString(36).substr(2, 9).toUpperCase();
+  const uniqueId = `${timestamp}${random}`;
+  return `ORD-${uniqueId}`;
 };
 
 // Create order from cart
@@ -78,9 +79,13 @@ app.post('/orders', authenticateToken, async (req, res) => {
       }
     }
 
-    // Calculate totals
-    const taxAmount = (subtotal - discountAmount) * 0.1; // 10% tax
-    const shippingAmount = subtotal > 100 ? 0 : 10; // Free shipping over $100
+    // Calculate totals - configurable via environment
+    const taxRate = parseFloat(process.env.TAX_RATE) || 0.1; // 10% default
+    const freeShippingThreshold = parseFloat(process.env.FREE_SHIPPING_THRESHOLD) || 100;
+    const standardShipping = parseFloat(process.env.STANDARD_SHIPPING_COST) || 10;
+    
+    const taxAmount = (subtotal - discountAmount) * taxRate;
+    const shippingAmount = subtotal > freeShippingThreshold ? 0 : standardShipping;
     const totalAmount = subtotal - discountAmount + taxAmount + shippingAmount;
 
     // Create order
