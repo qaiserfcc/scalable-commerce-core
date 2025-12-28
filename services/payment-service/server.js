@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const crypto = require('crypto');
 const axios = require('axios');
 const db = require('./database');
 require('dotenv').config({ path: '../../.env' });
@@ -39,10 +40,10 @@ app.post('/payments', authenticateToken, async (req, res) => {
   try {
     const { order_id, payment_method, payment_details } = req.body;
 
-    // Generate unique transaction ID with timestamp for better uniqueness
+    // Generate cryptographically secure transaction ID
     const timestamp = Date.now().toString(36).toUpperCase();
-    const random = Math.random().toString(36).substr(2, 12).toUpperCase();
-    const transactionId = `TXN-${timestamp}-${random}`;
+    const randomBytes = crypto.randomBytes(8).toString('hex').toUpperCase();
+    const transactionId = `TXN-${timestamp}-${randomBytes}`;
     
     // For COD, mark as pending; for online payments, mark as completed
     const status = payment_method === 'COD' ? 'pending' : 'completed';

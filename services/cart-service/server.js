@@ -164,13 +164,18 @@ app.put('/cart/items/:itemId', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'Cart item not found' });
     }
 
-    // Check stock availability
-    const productResponse = await axios.get(
-      `${process.env.PRODUCT_SERVICE_URL || 'http://localhost:3002'}/products/${items[0].product_id}`
-    );
+    // Check stock availability with error handling
+    try {
+      const productResponse = await axios.get(
+        `${process.env.PRODUCT_SERVICE_URL || 'http://localhost:3002'}/products/${items[0].product_id}`
+      );
 
-    if (productResponse.data.product.stock_quantity < quantity) {
-      return res.status(400).json({ error: 'Insufficient stock' });
+      if (productResponse.data.product.stock_quantity < quantity) {
+        return res.status(400).json({ error: 'Insufficient stock' });
+      }
+    } catch (productError) {
+      console.error('Product service error:', productError);
+      return res.status(503).json({ error: 'Unable to verify product availability' });
     }
 
     await db.query(

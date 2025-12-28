@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const crypto = require('crypto');
 const axios = require('axios');
 const db = require('./database');
 require('dotenv').config({ path: '../../.env' });
@@ -34,12 +35,11 @@ const authenticateToken = async (req, res, next) => {
   }
 };
 
-// Generate unique order number with timestamp-based uniqueness
+// Generate unique order number with crypto for better uniqueness
 const generateOrderNumber = () => {
   const timestamp = Date.now().toString(36).toUpperCase();
-  const random = Math.random().toString(36).substr(2, 9).toUpperCase();
-  const uniqueId = `${timestamp}${random}`;
-  return `ORD-${uniqueId}`;
+  const randomBytes = crypto.randomBytes(4).toString('hex').toUpperCase();
+  return `ORD-${timestamp}-${randomBytes}`;
 };
 
 // Create order from cart

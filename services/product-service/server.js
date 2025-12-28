@@ -285,70 +285,47 @@ app.post('/products/bulk-upload', verifyAdmin, upload.single('file'), async (req
     }
 
     filePath = req.file.path;
-    const products = [];
     const errors = [];
-    let batchSize = 0;
-    const maxBatchSize = 100; // Process in batches of 100
+    let successCount = 0;
+    let errorCount = 0;
 
-    const processStream = fs.createReadStream(filePath)
-      .pipe(csv())
-      .on('data', (row) => {
-        products.push(row);
-        batchSize++;
-        
-        // Pause stream if batch size reached to prevent memory issues
-        if (batchSize >= maxBatchSize) {
-          processStream.pause();
-        }
-      });
-
-    // Process accumulated products
-    const processBatch = async () => {
-      let successCount = 0;
-      let errorCount = 0;
-
-      for (const product of products) {
-        try {
-          await db.query(
-            `INSERT INTO products (name, description, price, compare_at_price, sku, category_id, 
-             stock_quantity, image_url, featured) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [
-              product.name,
-              product.description || '',
-              parseFloat(product.price),
-              product.compare_at_price ? parseFloat(product.compare_at_price) : null,
-              product.sku,
-              product.category_id || null,
-              parseInt(product.stock_quantity) || 0,
-              product.image_url || null,
-              product.featured === 'true' || product.featured === '1'
-            ]
-          );
-          successCount++;
-        } catch (error) {
-          errorCount++;
-          errors.push({ sku: product.sku, error: error.message });
-        }
-      }
-
-      return { successCount, errorCount };
-    };
-
-    processStream.on('end', async () => {
-      const result = await processBatch();
-      
-      res.json({
-        message: 'Bulk upload completed',
-        success: result.successCount,
-        errors: result.errorCount,
-        errorDetails: errors
-      });
+    // Use promise-based approach for better control
+    await new Promise((resolve, reject) => {
+      fs.createReadStream(filePath)
+        .pipe(csv())
+        .on('data', async (row) => {
+          try {
+            await db.query(
+              `INSERT INTO products (name, description, price, compare_at_price, sku, category_id, 
+               stock_quantity, image_url, featured) 
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+              [
+                row.name,
+                row.description || '',
+                parseFloat(row.price),
+                row.compare_at_price ? parseFloat(row.compare_at_price) : null,
+                row.sku,
+                row.category_id || null,
+                parseInt(row.stock_quantity) || 0,
+                row.image_url || null,
+                row.featured === 'true' || row.featured === '1'
+              ]
+            );
+            successCount++;
+          } catch (error) {
+            errorCount++;
+            errors.push({ sku: row.sku, error: error.message });
+          }
+        })
+        .on('end', resolve)
+        .on('error', reject);
     });
 
-    processStream.on('error', (error) => {
-      console.error('Stream error:', error);
-      res.status(500).json({ error: 'Failed to process bulk upload' });
+    res.json({
+      message: 'Bulk upload completed',
+      success: successCount,
+      errors: errorCount,
+      errorDetails: errors
     });
 
   } catch (error) {
